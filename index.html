@@ -1,429 +1,283 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>…static…</title>
-  <style>
-    :root{
-      --fog:#e6e1d6;
-      --ink:#0f0f0f;
-      --accent:#c23b3b;
-      --card: rgba(10,10,10,.62);
-      --line: rgba(255,255,255,.12);
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      min-height:100vh;
-      display:grid;
-      place-items:center;
-      color: var(--fog);
-      background: radial-gradient(1200px 700px at 50% 30%, #2a2a2a 0%, #0a0a0a 55%, #000 100%);
-      overflow:hidden;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      letter-spacing:.2px;
-    }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Silent Valentine</title>
 
-    /* Optional image backdrops (you will upload these) */
-    .backdrops{
-      position:fixed; inset:0;
-      pointer-events:none;
-      opacity:.22;
-      filter: grayscale(1) contrast(1.05) brightness(.9);
-      background:
-        linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,.85)),
-        url("assets/silent-hill.jpg");
-      background-size: cover;
-      background-position: center;
-      mix-blend-mode: screen;
-    }
-    .backdrops::after{
-      content:"";
-      position:absolute; inset:0;
-      opacity:.18;
-      background:
-        linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,.85)),
-        url("assets/league.jpg");
-      background-size: cover;
-      background-position: center;
-      mix-blend-mode: overlay;
-    }
+<style>
+:root{
+  --accent:#c23b3b;
+  --fog:#e6e1d6;
+}
 
-    /* Fog */
-    .fog, .fog::before, .fog::after{
-      position:fixed; inset:-40%;
-      background:
-        radial-gradient(circle at 20% 30%, rgba(255,255,255,.07) 0 28%, transparent 55%),
-        radial-gradient(circle at 70% 40%, rgba(255,255,255,.05) 0 22%, transparent 52%),
-        radial-gradient(circle at 50% 70%, rgba(255,255,255,.06) 0 26%, transparent 56%);
-      filter: blur(18px);
-      opacity:.65;
-      animation: drift 18s linear infinite;
-      pointer-events:none;
-      content:"";
-    }
-    .fog::before{ animation-duration: 26s; opacity:.55; transform: translate3d(-2%,1%,0) scale(1.02); }
-    .fog::after{ animation-duration: 34s; opacity:.45; transform: translate3d(2%,-1%,0) scale(1.04); }
+/* RESET */
+*{box-sizing:border-box}
+body{
+  margin:0;
+  min-height:100vh;
+  font-family: monospace;
+  color:var(--fog);
+  overflow:hidden;
+}
 
-    @keyframes drift{
-      0%{ transform: translate3d(-2%, -1%, 0) scale(1.02); }
-      50%{ transform: translate3d(2%, 1%, 0) scale(1.05); }
-      100%{ transform: translate3d(-2%, -1%, 0) scale(1.02); }
-    }
+/* SPLIT BACKGROUND */
+.backdrops{
+  position:fixed;
+  inset:0;
+  z-index:-3;
+  background:
+    linear-gradient(rgba(0,0,0,.25), rgba(0,0,0,.55)),
+    linear-gradient(90deg,
+      rgba(0,0,0,.15) 0%,
+      rgba(0,0,0,0) 35%,
+      rgba(0,0,0,0) 65%,
+      rgba(0,0,0,.15) 100%
+    ),
+    url("assets/silent-hill.jpg"),
+    url("assets/league.jpg");
+  background-size: cover, cover, cover, cover;
+  background-position: center, center, left center, right center;
+  opacity:.95;
+}
 
-    /* Grain + scanlines */
-    .grain{
-      position:fixed; inset:0;
-      background-image:
-        repeating-linear-gradient(
-          to bottom,
-          rgba(255,255,255,.06) 0px,
-          rgba(255,255,255,.06) 1px,
-          transparent 2px,
-          transparent 4px
-        );
-      mix-blend-mode: overlay;
-      opacity:.18;
-      pointer-events:none;
-      animation: flicker 6s infinite;
-    }
-    @keyframes flicker{
-      0%,100%{ opacity:.16;}
-      7%{opacity:.22;}
-      13%{opacity:.12;}
-      21%{opacity:.20;}
-      35%{opacity:.14;}
-      55%{opacity:.24;}
-      77%{opacity:.15;}
-    }
+/* FOG */
+.fog,.fog::before,.fog::after{
+  position:fixed;
+  inset:-40%;
+  content:"";
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,.08), transparent 60%),
+    radial-gradient(circle at 70% 60%, rgba(255,255,255,.06), transparent 60%);
+  filter:blur(20px);
+  animation: drift 20s infinite linear;
+}
+.fog::before{animation-duration:30s;opacity:.6}
+.fog::after{animation-duration:40s;opacity:.4}
 
-    /* Vignette */
-    .vignette{
-      position:fixed; inset:0;
-      background: radial-gradient(circle at center, transparent 0 55%, rgba(0,0,0,.75) 85%);
-      pointer-events:none;
-    }
+@keyframes drift{
+  0%{transform:translate(-2%,-2%)}
+  50%{transform:translate(2%,2%)}
+  100%{transform:translate(-2%,-2%)}
+}
 
-    .wrap{
-      width:min(760px, 92vw);
-      padding:24px;
-    }
+/* VIGNETTE */
+.vignette{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background:radial-gradient(circle, transparent 55%, rgba(0,0,0,.75));
+}
 
-    .hud{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      font-size:12px;
-      opacity:.85;
-      margin-bottom:10px;
-    }
-    .hud .dot{
-      width:10px; height:10px; border-radius:50%;
-      background: var(--accent);
-      box-shadow: 0 0 14px rgba(194,59,59,.65);
-      animation: pulse 1.5s infinite;
-    }
-    @keyframes pulse{
-      0%,100%{ transform:scale(1); opacity:.75;}
-      50%{ transform:scale(1.25); opacity:1;}
-    }
+/* CARD */
+.wrapper{
+  min-height:100vh;
+  display:grid;
+  place-items:center;
+  padding:20px;
+}
 
-    .card{
-      background: var(--card);
-      border:1px solid var(--line);
-      border-radius:20px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.55);
-      padding:22px 18px 18px;
-      backdrop-filter: blur(6px);
-      position:relative;
-    }
+.card{
+  background:rgba(10,10,10,.7);
+  border-radius:20px;
+  padding:24px;
+  width:min(760px,92vw);
+  box-shadow:0 20px 60px rgba(0,0,0,.6);
+  backdrop-filter:blur(6px);
+}
 
-    .title{
-      font-size: clamp(22px, 3.4vw, 30px);
-      margin:0 0 6px;
-      text-transform: uppercase;
-      letter-spacing: 1.4px;
-    }
-    .sub{
-      margin:0 0 14px;
-      font-size:14px;
-      color: rgba(230,225,214,.86);
-      line-height:1.4;
-    }
+h1{
+  margin:0 0 8px;
+  letter-spacing:2px;
+}
 
-    .radio{
-      font-size:12px;
-      opacity:.85;
-      border:1px dashed rgba(255,255,255,.18);
-      padding:10px 12px;
-      border-radius:14px;
-      margin:10px 0 18px;
-      position:relative;
-    }
-    .radio b{ color: #fff; }
-    .radio .bar{
-      height:6px; border-radius:999px;
-      background: linear-gradient(90deg, rgba(255,255,255,.0), rgba(194,59,59,.9), rgba(255,255,255,.0));
-      opacity:.85;
-      animation: sweep 2.4s infinite;
-      margin-top:8px;
-    }
-    @keyframes sweep{
-      0%{ transform: translateX(-30%); }
-      50%{ transform: translateX(30%); }
-      100%{ transform: translateX(-30%); }
-    }
+.sub{
+  font-size:14px;
+  opacity:.85;
+  margin-bottom:16px;
+}
 
-    .question{
-      margin: 0 0 12px;
-      font-size: 18px;
-    }
+.radio{
+  border:1px dashed rgba(255,255,255,.2);
+  padding:10px;
+  border-radius:12px;
+  font-size:12px;
+  margin-bottom:16px;
+}
 
-    .arena{
-      position:relative;
-      height:150px;
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:18px;
-      background: rgba(0,0,0,.25);
-      overflow:hidden;
-    }
-    .btn{
-      border:1px solid rgba(255,255,255,.18);
-      background: rgba(0,0,0,.45);
-      color: var(--fog);
-      padding:12px 16px;
-      border-radius:999px;
-      cursor:pointer;
-      font-weight:600;
-      letter-spacing:.5px;
-      transition: transform .12s ease, border-color .12s ease, background .12s ease;
-      user-select:none;
-    }
-    .btn:hover{ transform: translateY(-1px); border-color: rgba(255,255,255,.32); }
-    .btn:active{ transform: translateY(0px) scale(.99); }
-    .btn:disabled{ opacity:.55; cursor:not-allowed; }
+.question{
+  font-size:18px;
+  margin-bottom:12px;
+}
 
-    .btn-yes{
-      border-color: rgba(194,59,59,.55);
-      box-shadow: 0 0 18px rgba(194,59,59,.18);
-    }
-    .btn-yes:hover{ border-color: rgba(194,59,59,.9); }
+/* BUTTON ARENA */
+.arena{
+  position:relative;
+  height:140px;
+  background:rgba(0,0,0,.35);
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.15);
+  margin-bottom:14px;
+}
 
-    #yes{
-      position:absolute;
-      left:18px;
-      bottom:18px;
-    }
-    #no{
-      position:absolute;
-      right:18px;
-      bottom:18px;
-    }
+button{
+  background:rgba(0,0,0,.55);
+  border:1px solid rgba(255,255,255,.25);
+  color:var(--fog);
+  padding:12px 18px;
+  border-radius:999px;
+  cursor:pointer;
+  font-weight:bold;
+}
 
-    .inputRow{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-      margin-top:14px;
-    }
-    input{
-      flex:1;
-      min-width: 240px;
-      background: rgba(0,0,0,.35);
-      border:1px solid rgba(255,255,255,.16);
-      color: var(--fog);
-      padding:12px 14px;
-      border-radius:12px;
-      outline:none;
-    }
-    input:focus{ border-color: rgba(194,59,59,.6); box-shadow: 0 0 0 3px rgba(194,59,59,.12); }
+button:hover{border-color:white}
 
-    .msg{
-      margin-top:12px;
-      min-height: 42px;
-      font-size:14px;
-      line-height:1.4;
-      color: rgba(230,225,214,.9);
-    }
-    .success{
-      color: #fff;
-      border-left: 3px solid rgba(194,59,59,.9);
-      padding-left: 10px;
-    }
+#yes{
+  position:absolute;
+  left:18px;
+  bottom:18px;
+  border-color:var(--accent);
+}
 
-    .footer{
-      margin-top:14px;
-      font-size:12px;
-      opacity:.7;
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      flex-wrap:wrap;
-    }
-    .tag{
-      border:1px solid rgba(255,255,255,.14);
-      border-radius:999px;
-      padding:6px 10px;
-      background: rgba(0,0,0,.25);
-    }
-  </style>
+#no{
+  position:absolute;
+  right:18px;
+  bottom:18px;
+}
+
+/* INPUT */
+.inputRow{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+input{
+  flex:1;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.2);
+  background:rgba(0,0,0,.45);
+  color:white;
+}
+
+.msg{
+  margin-top:12px;
+  min-height:40px;
+  font-size:14px;
+}
+
+/* FOOTER */
+.footer{
+  display:flex;
+  justify-content:space-between;
+  margin-top:12px;
+  font-size:12px;
+  opacity:.7;
+}
+.tag{
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:999px;
+  padding:6px 10px;
+}
+</style>
 </head>
-<body>
-  <div class="backdrops"></div>
-  <div class="fog"></div>
-  <div class="grain"></div>
-  <div class="vignette"></div>
 
-  <div class="wrap">
-    <div class="hud">
-      <div style="display:flex;gap:10px;align-items:center">
-        <span class="dot"></span>
-        <span>RADIO: <span id="freq">…</span> kHz</span>
-      </div>
-      <div id="time">00:00</div>
+<body>
+<div class="backdrops"></div>
+<div class="fog"></div>
+<div class="vignette"></div>
+
+<div class="wrapper">
+  <div class="card">
+    <h1>SILENT VALENTINE</h1>
+    <div class="sub">
+      For <b>Anis</b> — a.k.a <b>Lifemourne</b><br>
+      Fog, static… and one honest answer.
     </div>
 
-    <div class="card">
-      <h1 class="title">Silent Valentine</h1>
-      <p class="sub">
-        For <b>Anis</b> — a.k.a. <b>Lifemourne</b>.<br/>
-        Fog, static… and one honest answer.
-      </p>
+    <div class="radio">
+      Signal detected: “You can’t unlock YES without saying it.”
+    </div>
 
-      <div class="radio">
-        <div><b>Signal detected:</b> “You can’t unlock ‘YES’ without saying it.”</div>
-        <div class="bar"></div>
-      </div>
+    <div class="question">
+      Anis… will you be my Valentine?
+    </div>
 
-      <p class="question">
-        Anis… will you be my Valentine?
-      </p>
+    <div class="arena" id="arena">
+      <button id="yes">YES</button>
+      <button id="no">NO</button>
+    </div>
 
-      <div class="arena" id="arena">
-        <button class="btn btn-yes" id="yes">YES</button>
-        <button class="btn" id="no">NO</button>
-      </div>
+    <div class="inputRow">
+      <input id="loveInput" placeholder='Type "I love you" or "je t’aime"'>
+      <button id="unlock">Unlock</button>
+    </div>
 
-      <div class="inputRow">
-        <input id="loveInput" type="text" placeholder='Type "I love you" or "je t’aime" to unlock…' autocomplete="off" />
-        <button class="btn btn-yes" id="unlock">Unlock</button>
-      </div>
+    <div class="msg" id="msg"></div>
 
-      <div class="msg" id="msg"></div>
-
-      <div class="footer">
-        <span class="tag">Tip: “NO” will dodge you 👀</span>
-        <span class="tag">Bonus: LoL player detected ⚔️</span>
-      </div>
+    <div class="footer">
+      <div class="tag">Tip: “NO” will dodge you 👀</div>
+      <div class="tag">Bonus: LoL player detected ⚔️</div>
     </div>
   </div>
+</div>
 
-  <script>
-    // Ambient details
-    const freq = document.getElementById("freq");
-    const timeEl = document.getElementById("time");
-    setInterval(() => {
-      const f = (Math.random() * 900 + 100).toFixed(1);
-      freq.textContent = f;
-      const d = new Date();
-      const hh = String(d.getHours()).padStart(2,'0');
-      const mm = String(d.getMinutes()).padStart(2,'0');
-      timeEl.textContent = `${hh}:${mm}`;
-    }, 900);
+<script>
+const arena=document.getElementById("arena");
+const noBtn=document.getElementById("no");
+const yesBtn=document.getElementById("yes");
+const msg=document.getElementById("msg");
+const input=document.getElementById("loveInput");
+const unlock=document.getElementById("unlock");
 
-    const arena = document.getElementById("arena");
-    const noBtn = document.getElementById("no");
-    const yesBtn = document.getElementById("yes");
-    const msg = document.getElementById("msg");
-    const input = document.getElementById("loveInput");
-    const unlockBtn = document.getElementById("unlock");
+function normalize(t){
+  return t.toLowerCase().trim().replace(/\s+/g," ");
+}
 
-    function normalize(s){
-      return (s || "")
-        .toLowerCase()
-        .trim()
-        .replace(/\s+/g, " ")
-        .replace(/[’]/g, "'"); // normalize apostrophe
-    }
+function isLove(t){
+  t=normalize(t);
+  return ["i love you","je t'aime","jetaime","i love u","love you"].includes(t);
+}
 
-    function isLovePhrase(s){
-      const n = normalize(s);
-      return (
-        n === "je t'aime" ||
-        n === "jetaime" ||
-        n === "i love you" ||
-        n === "iloveyou" ||
-        n === "i love u" ||
-        n === "love you"
-      );
-    }
+/* NO dodges */
+function moveNo(){
+  const a=arena.getBoundingClientRect();
+  const b=noBtn.getBoundingClientRect();
+  const x=Math.random()*(a.width-b.width-20)+10;
+  const y=Math.random()*(a.height-b.height-20)+10;
+  noBtn.style.left=x+"px";
+  noBtn.style.top=y+"px";
+}
 
-    // NO button dodges
-    function moveNoButton(){
-      const a = arena.getBoundingClientRect();
-      const b = noBtn.getBoundingClientRect();
-      const padding = 12;
-      const maxX = a.width - b.width - padding;
-      const maxY = a.height - b.height - padding;
-      const x = Math.max(padding, Math.random() * maxX);
-      const y = Math.max(padding, Math.random() * maxY);
+arena.addEventListener("mousemove",e=>{
+  if(e.target===noBtn) moveNo();
+});
 
-      noBtn.style.left = `${x}px`;
-      noBtn.style.top = `${y}px`;
-      noBtn.style.right = "auto";
-      noBtn.style.bottom = "auto";
-    }
+noBtn.onclick=()=>{
+  moveNo();
+  msg.textContent="Nope. The fog says no.";
+};
 
-    ["mouseenter","mousemove","touchstart"].forEach(evt => {
-      arena.addEventListener(evt, (e) => {
-        const target = e.target;
-        if (target === noBtn || target.closest("#no")) moveNoButton();
-      }, {passive:true});
-    });
+yesBtn.onclick=()=>{
+  msg.textContent='YES is locked. Type "I love you".';
+  input.focus();
+};
 
-    noBtn.addEventListener("click", () => {
-      moveNoButton();
-      msg.textContent = "Nice try. The fog says: NO. 😈";
-      msg.className = "msg";
-    });
-
-    function unlock(){
-      const text = input.value;
-      if (!isLovePhrase(text)){
-        msg.textContent = 'Locked. Type exactly: "I love you" (or "je t’aime").';
-        msg.className = "msg";
-        return false;
-      }
-
-      msg.innerHTML = '✅ <span class="success">Unlocked.</span> Welcome, Valentine. 💘';
-      msg.className = "msg success";
-
-      yesBtn.disabled = true;
-      unlockBtn.disabled = true;
-      input.disabled = true;
-
-      setTimeout(() => {
-        msg.innerHTML = '💗 <span class="success">Message received:</span> "I love you too, Lifemourne." Happy Valentine’s Day.';
-      }, 1200);
-
-      return true;
-    }
-
-    yesBtn.addEventListener("click", () => {
-      msg.textContent = 'YES is locked. To open it, type: "I love you" (or "je t’aime").';
-      msg.className = "msg";
-      input.focus();
-    });
-
-    unlockBtn.addEventListener("click", unlock);
-    input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") unlock();
-    });
-
-    setTimeout(moveNoButton, 300);
-  </script>
+unlock.onclick=()=>{
+  if(!isLove(input.value)){
+    msg.textContent='That’s not it… try again.';
+    return;
+  }
+  msg.innerHTML='💖 <b>Unlocked.</b> I love you too, Anis. Happy Valentine’s Day.';
+  yesBtn.disabled=true;
+  noBtn.disabled=true;
+  unlock.disabled=true;
+  input.disabled=true;
+};
+</script>
 </body>
 </html>
+
+   
