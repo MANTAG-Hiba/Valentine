@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -25,7 +25,32 @@
       letter-spacing:.2px;
     }
 
-    /* Brume */
+    /* Optional image backdrops (you will upload these) */
+    .backdrops{
+      position:fixed; inset:0;
+      pointer-events:none;
+      opacity:.22;
+      filter: grayscale(1) contrast(1.05) brightness(.9);
+      background:
+        linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,.85)),
+        url("assets/silent-hill.jpg");
+      background-size: cover;
+      background-position: center;
+      mix-blend-mode: screen;
+    }
+    .backdrops::after{
+      content:"";
+      position:absolute; inset:0;
+      opacity:.18;
+      background:
+        linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,.85)),
+        url("assets/league.jpg");
+      background-size: cover;
+      background-position: center;
+      mix-blend-mode: overlay;
+    }
+
+    /* Fog */
     .fog, .fog::before, .fog::after{
       position:fixed; inset:-40%;
       background:
@@ -81,7 +106,7 @@
     }
 
     .wrap{
-      width:min(700px, 92vw);
+      width:min(760px, 92vw);
       padding:24px;
     }
 
@@ -130,7 +155,7 @@
 
     .radio{
       font-size:12px;
-      opacity:.8;
+      opacity:.85;
       border:1px dashed rgba(255,255,255,.18);
       padding:10px 12px;
       border-radius:14px;
@@ -178,6 +203,7 @@
     }
     .btn:hover{ transform: translateY(-1px); border-color: rgba(255,255,255,.32); }
     .btn:active{ transform: translateY(0px) scale(.99); }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; }
 
     .btn-yes{
       border-color: rgba(194,59,59,.55);
@@ -185,7 +211,6 @@
     }
     .btn-yes:hover{ border-color: rgba(194,59,59,.9); }
 
-    /* Placement des boutons dans l'arène */
     #yes{
       position:absolute;
       left:18px;
@@ -206,7 +231,7 @@
     }
     input{
       flex:1;
-      min-width: 220px;
+      min-width: 240px;
       background: rgba(0,0,0,.35);
       border:1px solid rgba(255,255,255,.16);
       color: var(--fog);
@@ -233,10 +258,21 @@
       margin-top:14px;
       font-size:12px;
       opacity:.7;
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .tag{
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:999px;
+      padding:6px 10px;
+      background: rgba(0,0,0,.25);
     }
   </style>
 </head>
 <body>
+  <div class="backdrops"></div>
   <div class="fog"></div>
   <div class="grain"></div>
   <div class="vignette"></div>
@@ -252,14 +288,19 @@
 
     <div class="card">
       <h1 class="title">Silent Valentine</h1>
-      <p class="sub">Brouillard. Statique. Et une seule issue…</p>
+      <p class="sub">
+        For <b>Anis</b> — a.k.a. <b>Lifemourne</b>.<br/>
+        Fog, static… and one honest answer.
+      </p>
 
       <div class="radio">
-        <div><b>Signal détecté:</b> “Dis-le… sinon ça ne marche pas.”</div>
+        <div><b>Signal detected:</b> “You can’t unlock ‘YES’ without saying it.”</div>
         <div class="bar"></div>
       </div>
 
-      <p class="question">Tu veux être mon/ma Valentine ?</p>
+      <p class="question">
+        Anis… will you be my Valentine?
+      </p>
 
       <div class="arena" id="arena">
         <button class="btn btn-yes" id="yes">YES</button>
@@ -267,17 +308,21 @@
       </div>
 
       <div class="inputRow">
-        <input id="loveInput" type="text" placeholder='Écris "je t’aime" ou "I love you" ici…' autocomplete="off" />
-        <button class="btn btn-yes" id="unlock">Valider</button>
+        <input id="loveInput" type="text" placeholder='Type "I love you" or "je t’aime" to unlock…' autocomplete="off" />
+        <button class="btn btn-yes" id="unlock">Unlock</button>
       </div>
 
       <div class="msg" id="msg"></div>
-      <div class="footer">Tip: le “NO” ne coopère pas. 👀</div>
+
+      <div class="footer">
+        <span class="tag">Tip: “NO” will dodge you 👀</span>
+        <span class="tag">Bonus: LoL player detected ⚔️</span>
+      </div>
     </div>
   </div>
 
   <script>
-    // Petits détails d'ambiance
+    // Ambient details
     const freq = document.getElementById("freq");
     const timeEl = document.getElementById("time");
     setInterval(() => {
@@ -301,15 +346,13 @@
         .toLowerCase()
         .trim()
         .replace(/\s+/g, " ")
-        .replace(/[’']/g, "'"); // uniformise apostrophes
+        .replace(/[’]/g, "'"); // normalize apostrophe
     }
 
     function isLovePhrase(s){
       const n = normalize(s);
-      // accepte plusieurs variantes
       return (
         n === "je t'aime" ||
-        n === "je t’aime" ||          // au cas où
         n === "jetaime" ||
         n === "i love you" ||
         n === "iloveyou" ||
@@ -318,15 +361,13 @@
       );
     }
 
-    // Bouton NO qui esquive
+    // NO button dodges
     function moveNoButton(){
       const a = arena.getBoundingClientRect();
       const b = noBtn.getBoundingClientRect();
-
       const padding = 12;
       const maxX = a.width - b.width - padding;
       const maxY = a.height - b.height - padding;
-
       const x = Math.max(padding, Math.random() * maxX);
       const y = Math.max(padding, Math.random() * maxY);
 
@@ -336,57 +377,53 @@
       noBtn.style.bottom = "auto";
     }
 
-    // Au survol / approche -> il fuit
     ["mouseenter","mousemove","touchstart"].forEach(evt => {
       arena.addEventListener(evt, (e) => {
         const target = e.target;
-        // si la souris passe près du bouton no, il bouge
         if (target === noBtn || target.closest("#no")) moveNoButton();
       }, {passive:true});
     });
 
-    // Sécurité: si on arrive à cliquer NO, il bouge et affiche un message
     noBtn.addEventListener("click", () => {
       moveNoButton();
-      msg.textContent = "Nope. Le brouillard dit non. 😈";
+      msg.textContent = "Nice try. The fog says: NO. 😈";
+      msg.className = "msg";
     });
 
-    // Bouton YES: nécessite la phrase d’amour
-    function tryUnlock(){
+    function unlock(){
       const text = input.value;
       if (!isLovePhrase(text)){
-        msg.textContent = 'Ça ne marche pas… Écris exactement "je t’aime" ou "I love you".';
+        msg.textContent = 'Locked. Type exactly: "I love you" (or "je t’aime").';
         msg.className = "msg";
         return false;
       }
-      msg.innerHTML = '✅ <span class="success">Autorisé.</span> Bienvenue, Valentine officielle. 💘';
+
+      msg.innerHTML = '✅ <span class="success">Unlocked.</span> Welcome, Valentine. 💘';
       msg.className = "msg success";
 
       yesBtn.disabled = true;
       unlockBtn.disabled = true;
       input.disabled = true;
 
-      // Petit “final”
       setTimeout(() => {
-        msg.innerHTML = '💗 <span class="success">Transmission reçue:</span> "Je t’aime aussi." (Happy Valentine’s Day)';
+        msg.innerHTML = '💗 <span class="success">Message received:</span> "I love you too, Lifemourne." Happy Valentine’s Day.';
       }, 1200);
+
       return true;
     }
 
     yesBtn.addEventListener("click", () => {
-      msg.textContent = 'Le "YES" est verrouillé. Pour l’ouvrir: écris "je t’aime" ou "I love you".';
+      msg.textContent = 'YES is locked. To open it, type: "I love you" (or "je t’aime").';
       msg.className = "msg";
       input.focus();
     });
 
-    unlockBtn.addEventListener("click", tryUnlock);
+    unlockBtn.addEventListener("click", unlock);
     input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") tryUnlock();
+      if (e.key === "Enter") unlock();
     });
 
-    // Place le NO ailleurs au départ
     setTimeout(moveNoButton, 300);
   </script>
 </body>
 </html>
-
